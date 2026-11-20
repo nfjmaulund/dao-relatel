@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>DAO-opslag</title>
+<style>
+  body{font:14px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:12px;color:#1d2433;background:#fff}
+  .nr{font-size:22px;font-weight:700;letter-spacing:.06em;margin:2px 0 10px;user-select:all}
+  .lbl{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.04em}
+  button{width:100%;padding:10px;border:0;border-radius:8px;background:#005a64;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+  button:hover{background:#00727e}
+  .ok{color:#15803d;font-size:12px;margin-top:6px;min-height:16px}
+  .muted{color:#6b7280}
+  input{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+  <div class="lbl">Søg i DAO på</div>
+  <div class="nr" id="nr">–</div>
+  <button id="go">Kopiér nr. og åbn DAO ↗</button>
+  <div class="ok" id="msg"></div>
+  <input id="tmp" readonly>
+
+<script>
+  var DAO_URL = "https://omdeling.info/leveringerleverandoerstatus/";
+
+  // Relatel sender fx ?number=4512345678 → vi viser 12345678
+  var raw = (new URLSearchParams(location.search).get("number") || "").replace(/\D/g, "").replace(/^00/, "");
+  var nr = raw.replace(/^(45|46|47)(?=\d{8,10}$)/, "");
+  document.getElementById("nr").textContent = nr || "Intet nummer";
+
+  function copy(text) {
+    var el = document.getElementById("tmp");
+    el.value = text; el.select();
+    var done = false;
+    try { done = document.execCommand("copy"); } catch (e) {}
+    if (!done && navigator.clipboard) { navigator.clipboard.writeText(text).catch(function(){}); done = true; }
+    return done;
+  }
+
+  document.getElementById("go").addEventListener("click", function () {
+    var copied = nr && copy(nr);
+    window.open(DAO_URL, "_blank", "noopener");
+    document.getElementById("msg").textContent = copied
+      ? "Kopieret ✓  Klik i \"Søg pakker\" → Ctrl+V → Enter"
+      : "Markér nummeret ovenfor og kopiér det manuelt";
+  });
+</script>
+<script src="https://app.relatel.dk/api/iframe.js"></script>
+</body>
+</html>
